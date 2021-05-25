@@ -134,8 +134,9 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
 # ORC Acceleration
 ARG MESON_GST_TESTS=disabled
 
-ARG GST_ORC_VERSION=0.4.31
-ARG GST_ORC_REPO=https://gstreamer.freedesktop.org/src/orc/orc-${GST_ORC_VERSION}.tar.xz
+ARG GST_ORC_VERSION=0.4.32
+ARG GST_ORC_REPO=https://gitlab.freedesktop.org/gstreamer/orc/-/archive/${GST_ORC_VERSION}/orc-${GST_ORC_VERSION}.tar.bz2
+#ARG GST_ORC_REPO=https://gstreamer.freedesktop.org/src/orc/orc-${GST_ORC_VERSION}.tar.xz
 RUN wget ${GST_ORC_REPO} -O src/orc-${GST_ORC_VERSION}.tar.xz
 RUN tar xvf src/orc-${GST_ORC_VERSION}.tar.xz && \
     cd orc-${GST_ORC_VERSION} && \
@@ -308,7 +309,7 @@ ENV HTTPS_PROXY=${https_proxy}
 RUN apt-get update && apt-get upgrade -y && DEBIAN_FRONTEND=noninteractive apt-get install -y -q --no-install-recommends \
     lsb-release python3-yaml python3-wheel python3-pip python3-setuptools python3-dev python-gi-dev git wget curl pkg-config cmake clinfo vainfo gobject-introspection libusb-1.0.0 gnupg2 software-properties-common \
     opencl-headers ocl-icd-opencl-dev gpg-agent gcovr vim gdb ca-certificates uuid-dev libva-dev libva-drm2 ocl-icd-libopencl1\
-    \
+    cmake gdbserver openssh-server rsync sudo libx264-dev \
     libgstreamer1.0-0 gstreamer1.0-dev gstreamer1.0-tools gstreamer1.0-doc gstreamer1.0-plugins-base libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-good  \
     libgstreamer-plugins-good1.0-dev gstreamer1.0-plugins-bad libgstreamer-plugins-bad1.0-dev gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-video \
     libgstrtspserver-1.0-dev python3-gst-1.0 \
@@ -390,6 +391,7 @@ ENV ngraph_DIR=/opt/intel/openvino/deployment_tools/ngraph/cmake/
 ARG GIT_INFO
 ARG SOURCE_REV
 
+
 # Install stable MediaSDK version
 RUN add-apt-repository universe \
     && apt-get update \
@@ -404,6 +406,26 @@ RUN source /opt/intel/openvino/bin/setupvars.sh \
 ARG OV_DLSTREAMER_DIR="/opt/intel/openvino/data_processing/dl_streamer"
 ARG GST_GIT_URL="https://github.com/openvinotoolkit/dlstreamer_gst.git"
 
+RUN echo "clion ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+RUN useradd -rm -d /home/clion -s /bin/bash -g root -G sudo -u 1000 clion
+
+RUN ( \
+    echo 'Port 2222'; \
+    echo 'PermitRootLogin yes'; \
+    echo 'PasswordAuthentication yes'; \
+    echo 'Subsystem sftp /usr/lib/openssh/sftp-server'; \
+  ) > /etc/ssh/sshd_config_test_clion \
+  && mkdir /run/sshd
+
+USER clion
+WORKDIR /home/clion
+
+
+RUN ( \
+	echo 'source /opt/intel/openvino/bin/setupvars.sh'; \
+    ) >> .bashrc
+
 RUN git clone ${GST_GIT_URL} dl-streamer \
     && cd dl-streamer \
     && git submodule init \
@@ -414,6 +436,7 @@ ARG ENABLE_PAHO_INSTALLATION=ON
 ARG ENABLE_RDKAFKA_INSTALLATION=ON
 ARG BUILD_TYPE=Release
 ARG EXTERNAL_GVA_BUILD_FLAGS
+
 
 RUN mkdir -p dl-streamer/build \
     && cd dl-streamer/build \
@@ -429,14 +452,22 @@ RUN mkdir -p dl-streamer/build \
         ${EXTERNAL_GVA_BUILD_FLAGS} \
         .. \
     && make -j $(nproc) \
-    && make install \
-    && ldconfig \
-    && rm -rf ${OV_DLSTREAMER_DIR}/lib \
-    && rm -rf ${OV_DLSTREAMER_DIR}/samples \
-    && cp -r ../* ${OV_DLSTREAMER_DIR} \
-    && ln --symbolic ${OV_DLSTREAMER_DIR}/build/intel64/Release/lib ${OV_DLSTREAMER_DIR}/lib \
-    && rm -rf ../../dl-streamer
+    && sudo make install \
+    && sudo ldconfig \
+    && sudo rm -rf ${OV_DLSTREAMER_DIR}/lib \
+    && sudo rm -rf ${OV_DLSTREAMER_DIR}/samples \
+    && sudo cp -r ../* ${OV_DLSTREAMER_DIR} \
+    && sudo ln --symbolic ${OV_DLSTREAMER_DIR}/build/intel64/Release/lib ${OV_DLSTREAMER_DIR}/lib
 
-WORKDIR ${OV_DLSTREAMER_DIR}/samples
 
-CMD ["/bin/bash"]
+RUN ( \
+	echo 'add_subdirectory(cpp/demo_analytics)'; \
+    ) >> /home/clion/dl-streamer/samples/CMakeLists.txt
+
+USER root
+
+CMD ["/usr/sbin/sshd", "-D", "-e", "-f", "/etc/ssh/sshd_config_test_clion"]
+
+#WORKDIR ${OV_DLSTREAMER_DIR}/samples
+
+#CMD ["/bin/bash"]
