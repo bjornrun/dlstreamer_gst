@@ -58,9 +58,9 @@ sudo docker run -it --privileged --net=host \
     -v $VIDEO_EXAMPLES_PATH:/home/clion/video-examples \
     -e VIDEO_EXAMPLES_DIR=/home/clion/video-examples \
     \
-    -v $DEMO_PATH:/home/clion/gva/dl-streamer/samples/cpp/demo_analytics \
+    -v $DEMO_PATH:/home/clion/dl-streamer/samples/cpp/demo_analytics \
     -v $OPENVINO_PATH:/home/clion/openvino \
-    -w /home/clion/gva/dl-streamer/samples/cpp/demo_analytics \
+    -w /home/clion/dl-streamer/samples/cpp/demo_analytics \
     \
     --cap-add sys_ptrace \
     $IMAGE_NAME
