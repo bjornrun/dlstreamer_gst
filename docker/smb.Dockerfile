@@ -409,7 +409,7 @@ ARG GST_GIT_URL="https://github.com/openvinotoolkit/dlstreamer_gst.git"
 RUN echo "clion ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 RUN useradd -rm -d /home/clion -s /bin/bash -g root -G sudo -u 1000 clion
-RUN yes clion | passwd clion
+RUN yes clion | passwd clion; exit 0
 
 RUN ( \
     echo 'Port 2222'; \
