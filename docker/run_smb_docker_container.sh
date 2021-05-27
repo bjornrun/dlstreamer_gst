@@ -7,10 +7,10 @@
 
 set -e
 
-VIDEO_EXAMPLES_PATH="/home/bjorn/gva/data/video/"
-INTEL_MODELS_PATH="/home/bjorn/smb_demo/models"
-MODELS_PATH="/opt/intel/openvino/deployment_tools/open_model_zoo/models/"
-IMAGE_NAME="smb-analytics:latest"
+VIDEO_EXAMPLES_PATH="/nfs/ailab/ride/gva/data/video/"
+INTEL_MODELS_PATH="/nfs/ailab/ride/smb_demo/models"
+MODELS_PATH="/nfs/ailab/ride/opt/intel/openvino_2021.3.394/deployment_tools/open_model_zoo/models/"
+IMAGE_NAME="smb-analytics-dev:latest"
 
 for i in "$@"
 do
