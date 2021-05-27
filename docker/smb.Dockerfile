@@ -454,11 +454,7 @@ RUN mkdir -p dl-streamer/build \
         .. \
     && make -j $(nproc) \
     && sudo make install \
-    && sudo ldconfig \
-    && sudo rm -rf ${OV_DLSTREAMER_DIR}/lib \
-    && sudo rm -rf ${OV_DLSTREAMER_DIR}/samples \
-    && sudo cp -r ../* ${OV_DLSTREAMER_DIR} \
-    && sudo ln --symbolic ${OV_DLSTREAMER_DIR}/build/intel64/Release/lib ${OV_DLSTREAMER_DIR}/lib
+    && sudo ldconfig
 
 
 RUN ( \

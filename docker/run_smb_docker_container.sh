@@ -10,6 +10,8 @@ set -e
 VIDEO_EXAMPLES_PATH="/nfs/ailab/ride/gva/data/video/"
 INTEL_MODELS_PATH="/nfs/ailab/ride/smb_demo/models"
 MODELS_PATH="/nfs/ailab/ride/opt/intel/openvino_2021.3.394/deployment_tools/open_model_zoo/models/"
+OPENVINO_PATH="/nfs/ailab/ride/opt/intel/openvino_2021.3.394/"
+DEMO_PATH="/nfs/ailab/ride/smb_demo/demo_analytics"
 IMAGE_NAME="bjornrun/smb-analytics-dev:latest"
 
 for i in "$@"
@@ -56,9 +58,9 @@ sudo docker run -it --privileged --net=host \
     -v $VIDEO_EXAMPLES_PATH:/home/clion/video-examples \
     -e VIDEO_EXAMPLES_DIR=/home/clion/video-examples \
     \
-    -v /home/bjorn/smb_demo/demo_analytics:/home/clion/gva/gst-video-analytics/samples/cpp/demo_analytics \
-    -v /opt/intel/openvino:/home/clion/openvino \
-    -w /home/clion/gva/gst-video-analytics/samples/cpp/demo_analytics \
+    -v $DEMO_PATH:/home/clion/gva/dl-streamer/samples/cpp/demo_analytics \
+    -v $OPENVINO_PATH:/home/clion/openvino \
+    -w /home/clion/gva/dl-streamer/samples/cpp/demo_analytics \
     \
     --cap-add sys_ptrace \
     $IMAGE_NAME
