@@ -7,7 +7,7 @@
 
 set -e
 
-VIDEO_EXAMPLES_PATH="/nfs/ailab/ride/gva/data/video/"
+VIDEO_EXAMPLES_PATH="/nfs/ailab/ride/smb"
 INTEL_MODELS_PATH="/nfs/ailab/ride/smb_demo/models"
 MODELS_PATH="/nfs/ailab/ride/opt/intel/openvino_2021.3.394/deployment_tools/open_model_zoo/models/"
 OPENVINO_PATH="/nfs/ailab/ride/opt/intel/openvino_2021.3.394/"
